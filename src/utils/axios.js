@@ -4,9 +4,14 @@ import Vue from "vue"
 import store from '../store'
 import {successAlert,warningAlert} from '../utils/alert'
 import {router} from '../utils/axios'
-Vue.prototype.$img="http://localhost:3000"
-let baseUsl='/api'
 
+// 开发环境
+// Vue.prototype.$img="http://localhost:3000"
+// let baseUsl='/api'
+
+// 打包环境
+Vue.prototype.$img=""
+let baseUsl=''
 
 // 请求拦截
   axios.interceptors.request.use(req=>{
