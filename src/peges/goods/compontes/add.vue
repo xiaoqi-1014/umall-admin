@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-dialog :title="info.inofAdd==true? '添加商品列表':'编辑商品列表'" :visible.sync="info.isshow" @closed="close" @opened='open'>
+    <el-dialog :title="inof.inofAdd==true? '添加商品列表':'编辑商品列表'" :visible.sync="inof.isshow" @closed="close" @opened='open'>
       <el-form ref="form" :model="form" label-width="80px">
         <el-form-item label="一级分类">
           <el-select v-model="form.first_cateid" @change='changeFirst'>
@@ -57,13 +57,13 @@
           <el-switch v-model="form.status" :active-value="1" :inactive-value="2"></el-switch>
         </el-form-item>  
         <el-form-item label='商品描述'>
-         <div v-if="info.isshow" id="box">
+         <div v-if="inof.isshow" id="box">
          </div>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="qx">取消</el-button>
-        <el-button type="primary" @click="qd" v-if='info.inofAdd==true'>添加</el-button>
+        <el-button type="primary" @click="qd" v-if='inof.inofAdd==true'>添加</el-button>
         <el-button type="primary" v-else @click="update">修改</el-button>
       </div>
     </el-dialog>
@@ -75,7 +75,7 @@ import { mapGetters, mapActions } from "vuex";
 import { successAlert, warningAlert } from "../../../utils/alert";
 import {reqGoodsAdd,reqGoodsUpdate,reqCatelist,reqGoodsDetail} from "../../../utils/axios";
 export default {
-  props: ["info"],
+  props: ["inof"],
   components: {},
   data() {
     return {
@@ -151,8 +151,8 @@ export default {
       },
     //点击取消弹框消失
     qx() {
-      this.info.isshow = false;
-      if(!this.info.inofAdd==true){
+      this.inof.isshow = false;
+      if(!this.inof.inofAdd==true){
          // 样式重置
        this.empty()
       }
@@ -160,8 +160,8 @@ export default {
     },
     // 弹框消失之前判断是添加页面还是编辑页面 使用弹框消失默认事件
     close(){
-      if(this.info.inofAdd==true){
-         this.info.inofAdd==true
+      if(this.inof.inofAdd==true){
+         this.inof.inofAdd==true
       }else{
         this.empty()
       }
@@ -188,8 +188,6 @@ export default {
     qd() {
            let data=this.form
             // 获取到富文本的值存放到form.description中
-            console.log(data);
-            console.log('=====结束===');
             data.description=this.editor.txt.html()
             data.specsattr=JSON.stringify(data.specsattr)
             reqGoodsAdd(data).then((res) => {
@@ -210,7 +208,7 @@ export default {
       });
     },
     // 获取当前数据的详情
-    look(id){
+    lock(id){
          reqGoodsDetail({id:id}).then(res=>{
             if(res.data.code==200){
               this.form=res.data.list
@@ -224,6 +222,8 @@ export default {
               this.form.specsattr=JSON.parse(this.form.specsattr)
               // 获取商品属性的数组
               this.changeObj()
+                 // 获取二级分类的数据
+              this.reqgodli()
               // 刷新页面
               this.reqGoodsActions()
             }else{
@@ -269,7 +269,6 @@ export default {
   mounted() {
     this.reqCateList()
     this.reqSpecs(true)
-    // this.reqGoodsActions()
   },
 };
 </script>

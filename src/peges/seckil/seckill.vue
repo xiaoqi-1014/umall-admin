@@ -51,7 +51,7 @@ export default {
         this.inof.isshow=true
         // 改变标题
         this.inof.inofAdd=false
-        // 让add组件获取发起详情的请求
+        // 通过自定义事件获取到设置有ref的子组件，执行，lock方法
          this.$refs.add.lock(id)
       }
    },

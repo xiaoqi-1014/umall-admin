@@ -10,33 +10,43 @@
           <el-input v-model="form.title"></el-input>
         </el-form-item>
         <el-form-item label="活动期限">
-          <el-input v-model="form.title">
-           <span class="demonstration">带快捷选项</span>
-    <el-date-picker
-      v-model="value2"
-      type="datetime"
-      placeholder="选择日期时间"
-      align="right"
-      :picker-options="pickerOptions">
-    </el-date-picker>
-          </el-input>
+          <div class="block">
+            <el-date-picker
+              v-model="value2"
+              type="datetimerange"
+              range-separator="至"
+              start-placeholder="开始时间"
+              end-placeholder="结束时间"
+              align="right"
+            ></el-date-picker>
+          </div>
         </el-form-item>
         <el-form-item label="一级分类">
-          <el-select v-model="form.pid" placeholder="请选择上级菜单" @change="changePid">
-            <el-option label="顶级菜单" :value="0"></el-option>
-            <el-option v-for="item in list" :key="item.id" :label="item.title" :value="item.id"></el-option>
+          <el-select v-model="form.first_cateid" @change="changePid">
+            <el-option label="请选择" value disabled></el-option>
+            <el-option v-for="item in list" :key="item.id" :label="item.catename" :value="item.id"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="二级分类">
-          <el-select v-model="form.pid" placeholder="请选择上级菜单" @change="changePid">
-            <el-option label="顶级菜单" :value="0"></el-option>
-            <el-option v-for="item in list" :key="item.id" :label="item.title" :value="item.id"></el-option>
+          <el-select v-model="form.second_cateid" @change="changeThirdList">
+            <el-option label="请选择" value disabled></el-option>
+            <el-option
+              v-for="itme in childreList"
+              :key="itme.id"
+              :label="itme.catename"
+              :value="itme.id"
+            ></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="商品">
-          <el-select v-model="form.pid" placeholder="请选择上级菜单" @change="changePid">
-            <el-option label="顶级菜单" :value="0"></el-option>
-            <el-option v-for="item in list" :key="item.id" :label="item.title" :value="item.id"></el-option>
+          <el-select v-model="form.goodsid">
+            <el-option label="请选择" value disabled></el-option>
+            <el-option
+              v-for="item in thirdList"
+              :key="item.id"
+              :label="item.goodsname"
+              :value="item.id"
+            ></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="状态">
@@ -54,7 +64,14 @@
 
 <script>
 import { indexRouter } from "../../../router/index";
-import { reqMenuAdd, reqMenuinfo, reqMenudit } from "../../../utils/axios";
+import {
+  reqSeckAdd,
+  reqSeckinfo,
+  reqMenudit,
+  reqGoodsList,
+  reqCatelist,
+  reqSeckEdit
+} from "../../../utils/axios";
 import { warningAlert } from "../../../utils/alert";
 import { successAlert } from "../../../utils/alert";
 import { mapGetters, mapActions } from "vuex";
@@ -62,6 +79,8 @@ export default {
   props: ["inof"],
   data() {
     return {
+      childreList: [],
+      thirdList: [],
       form: {
         title: "",
         begintime: "",
@@ -71,27 +90,33 @@ export default {
         goodsid: "",
         status: "",
       },
+      value2: "",
     };
   },
   components: {},
   computed: {
     ...mapGetters({
-      list: "menu/list",
+      list: "cate/list",
+      goodList: "good/list",
     }),
   },
+
   methods: {
     ...mapActions({
-      reqListAction: "menu/reqListAction",
+      reqCateList: "cate/reqCateList",
+      reqGoodsActions: "good/reqGoodsActions",
+      reqSecklist: "seck/reqSecklist",
     }),
     // 数据重置
     cz() {
       this.form = {
-        pid: 0,
         title: "",
-        icon: "",
-        type: 1,
-        url: "",
-        status: 1,
+        begintime: "",
+        endtime: "",
+        first_cateid: "",
+        second_cateid: "",
+        goodsid: "",
+        status: "",
       };
     },
     qx() {
@@ -104,37 +129,59 @@ export default {
         this.cz();
       }
     },
+    //获取一条详情信息
     lock(id) {
-      reqMenuinfo(id).then((res) => {
+      reqSeckinfo(id).then((res) => {
         if (res.data.code == 200) {
-          //  这个时候的form是没有id的
+          // 把请求到的数据内容赋值给form
           this.form = res.data.list;
-          //  我们给form补一条id
+          this.value2=[new Date(parseInt(this.form.begintime)),new Date(parseInt(this.form.endtime))]
+          //  这个时候的form是没有id的
           this.form.id = id;
+          //得到二级分类的list
+          this.reqgodli();
+          //得到三级的list
+          this.changeThirdList();
         } else {
           warningAlert(res.data.msg);
         }
       });
     },
+    // 触发了一级分类之后发送一个请求
     changePid() {
-      if (this.form.pid == 0) {
-        this.form.type = 1;
-      } else {
-        this.form.type = 2;
-      }
+      this.form.second_cateid = "";
+      this.reqgodli();
+    },
+    reqgodli() {
+      let id = this.form.first_cateid;
+      reqCatelist({ pid: id }).then((res) => {
+        this.childr = res.data.list;
+        this.childreList = this.childr;
+      });
+    },
+    changeThirdList() {
+      reqGoodsList({
+        fid: this.form.first_cateid,
+        sid: this.form.second_cateid,
+      }).then((res) => {
+        this.thirdList = res.data.list;
+      });
     },
     // 点击添加之后
     qd() {
-      reqMenuAdd(this.form).then((res) => {
+      let data = this.form;
+      data.begintime = this.value2[0].getTime()+''
+      data.endtime = this.value2[1].getTime()+''
+      reqSeckAdd(data).then((res) => {
         if (res.data.code == 200) {
-          // 数据重置
-          this.cz();
           // 添加成功时弹出成功提示的弹框
           successAlert(res.data.msg);
           //  弹框消失
           this.qx();
+          // 数据重置
+          this.cz();
           // list数据刷新
-          this.reqListAction();
+          this.reqSecklist();
         } else {
           warningAlert(res.data.msg);
         }
@@ -142,7 +189,9 @@ export default {
     },
     // 点击修改之后
     update() {
-      reqMenudit(this.form).then((res) => {
+      // console.log(this.form);
+      // console.log('打印完成');
+      reqSeckEdit(this.form).then((res) => {
         if (res.data.code == 200) {
           successAlert(res.data.msg);
           // 数据清空
@@ -150,12 +199,16 @@ export default {
           //  弹框消失
           this.qx();
           //  页面刷新
-          this.reqListAction();
+          this.reqSecklist();
         } else {
           warningAlert(res.data.msg);
         }
       });
     },
+  },
+  mounted() {
+    this.reqCateList();
+    this.reqGoodsActions(true);
   },
 };
 </script>

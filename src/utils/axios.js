@@ -6,12 +6,12 @@ import {successAlert,warningAlert} from '../utils/alert'
 import {router} from '../utils/axios'
 
 // 开发环境
-// Vue.prototype.$img="http://localhost:3000"
-// let baseUsl='/api'
+Vue.prototype.$img="http://localhost:3000"
+let baseUsl='/api'
 
 // 打包环境
-Vue.prototype.$img=""
-let baseUsl=''
+// Vue.prototype.$img=""
+// let baseUsl=''
 
 // 请求拦截
   axios.interceptors.request.use(req=>{
@@ -454,10 +454,11 @@ export const reqBannerDel=(id)=>{
 // =======秒杀活动============
 // 添加
  export const reqSeckAdd=(params)=>{
+     console.log(params);
      return axios({
          url:baseUsl+'/api/seckadd',
          method:'post',
-         data:qs.stringify({params})
+         data:qs.stringify(params)
      })
  }
 
@@ -474,7 +475,7 @@ export const reqSeckinfo=(id)=>{
     return axios({
         url:baseUsl+'/api/seckinfo',
         method:'get',
-        params:id
+        params:{id}
     })
 }
 
@@ -483,7 +484,7 @@ export const reqSeckEdit=(params)=>{
     return axios({
         url:baseUsl+'/api/seckedit',
         method:'POST',
-       data:qs.stringify({params})
+       data:qs.stringify(params)
     })
 }
 
@@ -492,6 +493,6 @@ export const reqSeckDel=(id)=>{
     return axios({
         url:baseUsl+'/api/seckdelete',
         method:'POST',
-       data:id
+        data:({id})
     })
 }

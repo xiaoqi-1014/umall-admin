@@ -12,6 +12,7 @@ import speca from './modules/speca'
 import good from './modules/good'
 import mamber from './modules/mamber'
 import banner from './modules/banner'
+import seck from './modules/seck'
 export default new vuex.Store({
     state,
     getters,
@@ -25,6 +26,7 @@ export default new vuex.Store({
         speca,
         good,
         mamber,
-        banner
+        banner,
+        seck
     }
 })

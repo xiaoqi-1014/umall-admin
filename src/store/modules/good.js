@@ -15,7 +15,6 @@ const state={
 const mutations={
     changeList(state,arr){
         state.list=arr
-        console.log(state.list);
     },
     //  总数
     changeTotal(state,total){
@@ -29,8 +28,9 @@ const mutations={
 
 // 接收页面穿过来的参数
 const actions={
-    reqGoodsActions(context){
-        reqGoodsList({page:context.state.page,size:context.state.size}).then(res=>{
+    reqGoodsActions(context,bool){
+        let params=bool==true? {}:{page:context.state.page,size:context.state.size}
+        reqGoodsList(params).then(res=>{
             let list=res.data.list? res.data.list:[]
             // 点击删除刷新页面，如果当前的size为0，就让页面展现上一条数据
             if(context.state.page>1&&list.length==0){

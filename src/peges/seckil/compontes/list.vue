@@ -35,7 +35,7 @@
 <script>
 import {mapGetters,mapActions} from 'vuex';
 import { successAlert, warningAlert } from '../../../utils/alert';
-import {reqMenuDel} from '../../../utils/axios'
+import {reqSeckDel} from '../../../utils/axios'
 export default {
   props:[],
   components:{},
@@ -44,13 +44,12 @@ export default {
     },
     computed:{
         ...mapGetters({
-       list:'menu/list'
+                 list:'seck/list'
         })
     },
     methods:{
       ...mapActions({
-        reqListAction:'menu/reqListAction'
-        // req
+              reqSecklist:'seck/reqSecklist'
       }),
       //删除按钮
       open(id){
@@ -59,14 +58,18 @@ export default {
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          reqMenuDel(id).then(res=>{
+          console.log('成功打印');
+          reqSeckDel(id).then(res=>{
+            console.log(res);
+            console.log('打印完成');
               if(res.data.code==200){
                 successAlert(res.data.msg)
                 // 页面更新
-                this.reqListAction()
+                this.reqSecklist()
               }
             })
         }).catch(() => {
+          console.log('失败打印');
             warningAlert('已取消删除')
         });
       },
@@ -78,7 +81,7 @@ export default {
     },
     // 一进页面就发送请求
     mounted(){
-      this.reqListAction()
+             this.reqSecklist()
     }
 }
 </script>

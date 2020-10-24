@@ -1,5 +1,6 @@
 <template>
-<div>
+<div> 
+   <el-button type='primary' class="el" @click="tj">添加</el-button>
      <v-list @edit='edit'></v-list> 
      <v-add :inof='inof' ref="add"></v-add>
 </div>
@@ -35,6 +36,10 @@ methods:{
     this.inof.inofAdd=false
     // 让add组件发起详情的请求
     this.$refs.add.lock(id)
+  },
+  tj(){
+     this.inof.isshow=true
+     this.inof.inofAdd=true
   }
 },
 mounted(){
@@ -43,7 +48,7 @@ mounted(){
 }
 </script>
 <style scoped>
-.tian{
+.el{
   margin-top:20px;
 }
 </style>
